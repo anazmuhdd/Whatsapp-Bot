@@ -9,9 +9,9 @@ This project is a full-stack AI-powered WhatsApp chatbot using:
 
 ## 📸 Demo Screenshot
 
-![Bot Demo](images/1.jpg)
-![Bot Demo](images/2.jpg)
-![Bot Demo](images/3.jpg)
+![Bot Demo](screenshots/1.jpg)
+![Bot Demo](screenshots/2.jpg)
+![Bot Demo](screenshots/3.jpg)
 
 ---
 
