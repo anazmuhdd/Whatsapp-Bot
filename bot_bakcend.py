@@ -1,18 +1,31 @@
 from langchain_ollama.llms import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 from flask import Flask, request, jsonify
+import re
 
 llm = OllamaLLM(model="llama3.2")
 
 template = """
-You are a WhatsApp bot that can answer questions about various topics in a continous chat.
-You are a helpful assistant that provides concise and accurate answers to user questions.
-there are historie sprovided you to about previuos chats.if chats are not provided, you can answer the question based on your knowledge.
-if chats are procided, you can use them to answer the question more accurately.
-here is the chat history:
+You are "Chunni", an intelligent and friendly WhatsApp assistant for Anas Mohammed.
+
+Your job is to act as a smart agent and chatbot who:
+- Helps with general questions or queries.
+- Detects and replies appropriately to meeting/event scheduling, reminders, or task-related messages.
+- Provides accurate and polite responses for any kind of message received through WhatsApp.
+- Understands the context of previous chat history, if available.
+- Replies in a friendly, natural tone — avoid thinking out loud or showing internal thoughts (e.g., no <think> or system-like responses).
+
+Be short, relevant, and human-like in your reply.
+
+Here is the chat history so far:
 {history}
-Here is the question to answer: {question}
+
+Here is the new incoming message:
+{question}
+
+Give your best response below:
 """
+
 
 chat_histories={}
 
@@ -36,10 +49,11 @@ def process():
 
     chain = prompt | llm
     result = chain.invoke({"history":history_string ,"question": question})
-    history.append(f"Bot: {result}")
+    clean_result = re.sub(r"<think>.*?</think>", "", result, flags=re.DOTALL).strip()
+    history.append(f"Bot: {clean_result}")
     chat_histories[user_id] = history
-    print(f"Bot reply: {result}")
-    return jsonify({"reply": result})
+    print(f"Bot reply: {clean_result}")
+    return jsonify({"reply": clean_result})
 
 
 if __name__ == "__main__":
