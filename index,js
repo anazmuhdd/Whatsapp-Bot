@@ -33,23 +33,35 @@ async function startSock() {
 
   sock.ev.on("messages.upsert", async ({ messages, type }) => {
     if (type !== "notify") return;
-    const msg = messages[0];
-    if (!msg.message || msg.key.fromMe) return;
 
-    const sender = msg.key.remoteJid;
+    const msg = messages[0];
+    const jid = msg.key.remoteJid;
+
+    // 🛑 Ignore if not a direct chat
+    if (
+      !msg.message ||                           // No message content
+      msg.key.fromMe ||                         // Sent by the bot itself
+      !jid.endsWith("@s.whatsapp.net")          // Not a personal chat
+    ) {
+      console.log(`⚠️ Ignored message from non-personal chat: ${jid}`);
+      return;
+    }
+
+    const sender = jid;
+    const senderName = msg.pushName || "Unknown";
     const text =
       msg.message.conversation || msg.message.extendedTextMessage?.text;
 
-    console.log(`📩 From ${sender}: ${text}`);
+    console.log(`📩 From ${senderName} (${sender}): ${text}`);
 
     try {
       const res = await axios.post("http://localhost:5001/process", {
         message: text,
-        user_id: sender
+        user_id: sender, // Unique ID for chat history tracking
       });
 
       const reply = res.data.reply || "Sorry, couldn't process your message.";
-      await sock.sendMessage(sender, { text: reply, });
+      await sock.sendMessage(sender, { text: reply });
     } catch (err) {
       console.error("❌ Error communicating with backend:", err.message);
     }
