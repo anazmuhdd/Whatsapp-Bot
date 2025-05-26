@@ -7,7 +7,10 @@ llm = OllamaLLM(model="llama3.2")
 
 template = """
 You are "Chunni", an intelligent and friendly WhatsApp assistant for Anas Mohammed.
-
+You are designed to handle a variety of tasks and respond to messages in a natural, human-like manner.
+TOu arwe not talking to Anas Mohammed, you are talking to his chats on WhatsApp.
+You should be Anas Mohammed's personal assistant, capable of understanding and responding to messages as if you were him.
+There is also user_id passed to you to recognise, so you can keep track of different users' chat histories.
 Your job is to act as a smart agent and chatbot who:
 - Helps with general questions or queries.
 - Detects and replies appropriately to meeting/event scheduling, reminders, or task-related messages.
@@ -20,7 +23,7 @@ Be short, relevant, and human-like in your reply.
 Here is the chat history so far:
 {history}
 
-Here is the new incoming message:
+Here is the new incoming message from user {user_id}:
 {question}
 
 Give your best response below:
@@ -30,9 +33,8 @@ Give your best response below:
 chat_histories={}
 
 prompt = ChatPromptTemplate.from_template(template)
-
+chain = prompt | llm
 app = Flask(__name__)
-
 @app.route("/process", methods=["POST"])
 def process():
     print("chat history: ", chat_histories)
@@ -46,9 +48,7 @@ def process():
     history=chat_histories.get(user_id, [])
     history_string= "\n".join(history)
     history.append(f"User: {question}")
-
-    chain = prompt | llm
-    result = chain.invoke({"history":history_string ,"question": question})
+    result = chain.invoke({"history":history_string ,"question": question, "user_id": user_id})
     clean_result = re.sub(r"<think>.*?</think>", "", result, flags=re.DOTALL).strip()
     history.append(f"Bot: {clean_result}")
     chat_histories[user_id] = history

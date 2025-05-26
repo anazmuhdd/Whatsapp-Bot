@@ -20,7 +20,7 @@ async function startSock() {
     if (connection === "close") {
       const shouldReconnect =
         lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
-      console.log("❌ Disconnected: ", lastDisconnect?.error, " Reconnecting:", shouldReconnect);
+      console.log("❌ Disconnected: ", " Reconnecting:");
       if (shouldReconnect) {
         startSock();
       }
@@ -45,10 +45,11 @@ async function startSock() {
     try {
       const res = await axios.post("http://localhost:5001/process", {
         message: text,
+        user_id: sender
       });
 
       const reply = res.data.reply || "Sorry, couldn't process your message.";
-      await sock.sendMessage(sender, { text: reply });
+      await sock.sendMessage(sender, { text: reply, });
     } catch (err) {
       console.error("❌ Error communicating with backend:", err.message);
     }
