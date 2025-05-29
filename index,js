@@ -13,7 +13,7 @@ async function startSock() {
     const { connection, lastDisconnect, qr } = update;
 
     if (qr) {
-      console.log("📱 Scan the QR Code:");
+      console.log("Scan the QR Code:");
       qrcode.generate(qr, { small: true });
     }
 
@@ -37,13 +37,12 @@ async function startSock() {
     const msg = messages[0];
     const jid = msg.key.remoteJid;
 
-    // 🛑 Ignore if not a direct chat
     if (
       !msg.message ||                           // No message content
       msg.key.fromMe ||                         // Sent by the bot itself
       !jid.endsWith("@s.whatsapp.net")          // Not a personal chat
     ) {
-      console.log(`⚠️ Ignored message from non-personal chat: ${jid}`);
+      console.log(`Ignored message from non-personal chat: ${jid}`);
       return;
     }
 
